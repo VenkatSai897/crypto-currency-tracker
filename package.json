@@ -10,6 +10,8 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.27.2",
     "chart.js": "^3.5.1",
+    "currency-symbol-map": "^5.1.0",
+    "dompurify": "^2.3.10",
     "react": "^18.2.0",
     "react-alice-carousel": "^2.6.4",
     "react-chartjs-2": "^3.0.4",

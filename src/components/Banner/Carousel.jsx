@@ -34,8 +34,8 @@ const Carousel = () => {
   useEffect(() => {
     fetchTrendingCoin();
   }, [currency]);
-  const items = trending.map((coin) => {
-    let profit = coin.price_change_percentage_24h >= 0;
+    const items = trending?.map((coin) => {
+    let profit = coin?.price_change_percentage_24h >= 0;
 
     return (
       <Link className={classes.carouselItem} to={`/coins/${coin.id}`}>

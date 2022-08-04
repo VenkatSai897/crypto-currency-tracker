@@ -12,7 +12,10 @@ import CoinInfo from "../components/CoinInfo";
 import { SingleCoin } from "../Config/api";
 import { numberWithCommas } from "../components/Banner/Carousel";
 import { CryptoState } from "../CryptoContext";
+import DOMPurify from "dompurify";
+import "./CoinPage.css";
 
+import getSymbolFromCurrency from "currency-symbol-map";
 const darkTheme = createTheme({
   palette: {
     primary: {
@@ -59,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     justifyContent: "center",
     // border: "3px solid green",
-    alignItems:"center",
+    alignItems: "center",
     padding: 25,
     paddingTop: 10,
     width: "100%",
@@ -86,13 +89,12 @@ const CoinPage = () => {
 
   const fetchCoin = async () => {
     const { data } = await axios.get(SingleCoin(id));
-
+    console.log(data);
     setCoin(data);
   };
 
   useEffect(() => {
     fetchCoin();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const classes = useStyles();
@@ -101,80 +103,161 @@ const CoinPage = () => {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <div className={classes.container}>
-        <div className={classes.sidebar}>
-          <img
-            src={coin?.image.large}
-            alt={coin?.name}
-            height="200"
-            style={{ marginBottom: 20 }}
-          />
-          <Typography variant="h3" className={classes.heading}>
-            {coin?.name}
-          </Typography>
-          <Typography variant="subtitle1" className={classes.description}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: coin?.description.en.split(". ")[0] + " ." + coin?.description.en.split(". ")[1] + " .",
-              }}
-            ></div>
-          </Typography>
-          <div className={classes.marketData}>
-            <span style={{ display: "flex" }}>
-              <Typography variant="h5" className={classes.heading}>
-                Rank:
-              </Typography>
-              &nbsp; &nbsp;
-              <Typography
-                variant="h5"
-                style={{
-                  fontFamily: "Lato",
-                }}
-              >
-                {numberWithCommas(coin?.market_cap_rank)}
-              </Typography>
-            </span>
+      <div className="coin-container">
+        <div className="content">
+          <h1>{coin?.name}</h1>
+        </div>
+        <div className="content">
+          <div className="rank">
+            <span className="rank-btn">Rank # {coin?.market_cap_rank}</span>
+          </div>
+          <div className="info">
+            <div className="coin-heading">
+              <img src={coin?.image.small} alt="" />
+              <p>{coin?.name}</p>
+              <p>{coin?.symbol.toUpperCase()}/USD</p>
+            </div>
+            <div className="coin-price">
+              <h1>
+                {symbol}{" "}
 
-            <span style={{ display: "flex" }}>
-              <Typography variant="h5" className={classes.heading}>
-                Current Price:
-              </Typography>
-              &nbsp; &nbsp;
-              <Typography
-                variant="h5"
-                style={{
-                  fontFamily: "Lato",
-                }}
-              >
-                {symbol}{" "}
-                {numberWithCommas(
-                  coin?.market_data.current_price[currency.toLowerCase()]
-                )}
-              </Typography>
-            </span>
-            <span style={{ display: "flex" }}>
-              <Typography variant="h5" className={classes.heading}>
-                Market Cap:
-              </Typography>
-              &nbsp; &nbsp;
-              <Typography
-                variant="h5"
-                style={{
-                  fontFamily: "Lato",
-                }}
-              >
-                {symbol}{" "}
-                {numberWithCommas(
-                  coin?.market_data.market_cap[currency.toLowerCase()]
-                    .toString()
-                    .slice(0, -6)
-                )}
-                M
-              </Typography>
-            </span>
+                  {numberWithCommas(coin?.market_data.market_cap[currency.toLowerCase()].toString().slice(0,-6)) + " M"}
+
+              </h1>
+            </div>
           </div>
         </div>
-        {/* <CoinInfo coin={coin} /> */}
+
+        <div className="content">
+          <table>
+            <thead>
+              <tr>
+                <th>1h</th>
+                <th>24h</th>
+                <th>7d</th>
+                <th>14d</th>
+                <th>30d</th>
+                <th>1yr</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  {
+                    <p>
+                      {coin?.market_data.price_change_percentage_1h_in_currency[
+                        currency.toLowerCase()
+                      ].toFixed(2)}
+                      %
+                    </p>
+                  }
+                </td>
+                <td>
+                  {
+                    <p>
+                      {coin?.market_data.price_change_percentage_24h_in_currency[
+                        currency.toLowerCase()
+                      ].toFixed(2)}
+                      %
+                    </p>
+                  }
+                </td>
+                <td>
+                  {
+                    <p>
+                      {coin?.market_data.price_change_percentage_7d_in_currency[
+                        currency.toLowerCase()
+                      ].toFixed(2)}
+                      %
+                    </p>
+                  }
+                </td>
+                <td>
+                  {
+                    <p>
+                      {coin?.market_data.price_change_percentage_14d_in_currency[
+                        currency.toLowerCase()
+                      ].toFixed(2)}
+                      %
+                    </p>
+                  }
+                </td>
+                <td>
+                  {
+                    <p>
+                      {coin?.market_data.price_change_percentage_30d_in_currency[
+                        currency.toLowerCase()
+                      ].toFixed(2)}
+                      %
+                    </p>
+                  }
+                </td>
+                <td>
+                  {
+                    <p>
+                      {coin?.market_data.price_change_percentage_1y_in_currency[
+                        currency.toLowerCase()
+                      ].toFixed(2)}
+                      %
+                    </p>
+                  }
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="content">
+          <div className="stats">
+            <div className="left">
+              <div className="row">
+                <h4>24 Hour Low</h4>
+                <p>
+                  {symbol}
+                  {coin?.market_data.low_24h[
+                    currency.toLowerCase()
+                  ].toLocaleString()}
+                </p>
+              </div>
+              <div className="row">
+                <h4>24 Hour High</h4>
+                <p>
+                  {symbol}
+                  {coin?.market_data.high_24h[
+                    currency.toLowerCase()
+                  ].toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <div className="right">
+              <div className="row">
+                <h4>Market Cap</h4>
+                <p>
+                  {symbol}
+                  {coin?.market_data.market_cap[
+                    currency.toLowerCase()
+                  ].toLocaleString()}
+                </p>
+              </div>
+              <div className="row">
+                <h4>Circulating Supply</h4>
+                <p>{coin?.market_data.circulating_supply}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="content">
+          <div className="about">
+            <h3>About</h3>
+            <p
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(
+                  coin.description ? coin.description.en : ""
+                ),
+              }}
+            ></p>
+          </div>
+        </div>
       </div>
     </ThemeProvider>
   );
